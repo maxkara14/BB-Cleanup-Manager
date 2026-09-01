@@ -50,6 +50,10 @@ const state = {
     managerRoot: null,
 };
 
+function isMobileViewport() {
+    return globalThis.matchMedia?.('(max-width: 760px)').matches ?? false;
+}
+
 function escapeHtml(value) {
     return String(value ?? '').replace(/[&<>"']/g, character => ({
         '&': '&amp;',
@@ -565,6 +569,12 @@ function renderManager() {
     if (state.busy) root.find('button, input, select').prop('disabled', true);
 }
 
+function collapseMobileOverview() {
+    if (!state.managerRoot || !isMobileViewport()) return;
+    const overview = $(state.managerRoot).find('.bbcm-mobile-overview').get(0);
+    if (overview) overview.open = false;
+}
+
 function renderResults() {
     $('#bbcm-result-summary').prop('hidden', false);
     $('#bbcm-summary-text').text(`Найдено: ${state.chats.length} чатов, ${state.lorebooks.length} лорбуков.`);
@@ -609,6 +619,7 @@ async function scanCleanupCandidates({ preserveSelection = false, nested = false
         state.selectedLorebooks = new Set(lorebookCandidates.filter(book => previousLorebooks.has(book.name)).map(book => book.name));
 
         renderResults();
+        collapseMobileOverview();
         const failedWorlds = worldNames.length - worldData.size;
         const suffix = failedWorlds > 0 ? ` ${failedWorlds} лорбуков не удалось прочитать и они исключены.` : '';
         setStatus(`Проверено ${allChats.length} чатов и ${worldNames.length} лорбуков. Найдено: ${chatCandidates.length} чатов, ${lorebookCandidates.length} лорбуков.${suffix}`, 'success');
@@ -970,18 +981,24 @@ function settingsMarkup() {
 function managerMarkup() {
     return `
         <div id="bbcm-manager" class="bbcm-manager">
-            <div class="bbcm-manager-header">
-                <div>
-                    <h3><i class="fa-solid fa-broom-ball"></i> Менеджер очистки</h3>
-                    <p>Проверьте кандидатов перед экспортом или удалением.</p>
+            <details class="bbcm-mobile-overview" open>
+                <summary class="bbcm-mobile-overview-summary">
+                    <span><i class="fa-solid fa-broom-ball"></i> Обзор сканирования</span>
+                    <i class="fa-solid fa-chevron-down bbcm-mobile-overview-chevron"></i>
+                </summary>
+                <div class="bbcm-manager-header">
+                    <div>
+                        <h3><i class="fa-solid fa-broom-ball"></i> Менеджер очистки</h3>
+                        <p>Проверьте кандидатов перед экспортом или удалением.</p>
+                    </div>
+                    <button id="bbcm-manager-rescan" type="button" class="menu_button menu_button_icon"><i class="fa-solid fa-rotate"></i> Пересканировать</button>
                 </div>
-                <button id="bbcm-manager-rescan" type="button" class="menu_button menu_button_icon"><i class="fa-solid fa-rotate"></i> Пересканировать</button>
-            </div>
-            <div class="bbcm-manager-stats">
-                <div><i class="fa-regular fa-comments"></i><span><strong id="bbcm-manager-chat-count">0</strong><small>чатов</small></span></div>
-                <div><i class="fa-solid fa-book"></i><span><strong id="bbcm-manager-lorebook-count">0</strong><small>лорбуков</small></span></div>
-            </div>
-            <div id="bbcm-manager-status" class="bbcm-status" role="status"></div>
+                <div class="bbcm-manager-stats">
+                    <div><i class="fa-regular fa-comments"></i><span><strong id="bbcm-manager-chat-count">0</strong><small>чатов</small></span></div>
+                    <div><i class="fa-solid fa-book"></i><span><strong id="bbcm-manager-lorebook-count">0</strong><small>лорбуков</small></span></div>
+                </div>
+                <div id="bbcm-manager-status" class="bbcm-status" role="status"></div>
+            </details>
             <div class="bbcm-tabs" role="tablist" aria-label="Тип данных">
                 <button type="button" class="bbcm-tab" data-tab="chats" role="tab">Чаты <span id="bbcm-tab-chat-count" class="bbcm-count">0</span></button>
                 <button type="button" class="bbcm-tab" data-tab="lorebooks" role="tab">Лорбуки <span id="bbcm-tab-lorebook-count" class="bbcm-count">0</span></button>
@@ -1046,6 +1063,7 @@ async function openManager() {
         .toggleClass('bbcm-status-success', drawerStatus.hasClass('bbcm-status-success'))
         .toggleClass('bbcm-status-error', drawerStatus.hasClass('bbcm-status-error'));
     renderManager();
+    collapseMobileOverview();
 
     try {
         await popup.show();

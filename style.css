@@ -120,9 +120,21 @@
     flex-direction: column;
     width: 100%;
     height: min(78vh, 860px);
-    min-height: 520px;
+    max-height: calc(100dvh - 4em);
+    min-height: 0;
     gap: 12px;
     text-align: left;
+    overflow: hidden;
+}
+
+.bbcm-mobile-overview-summary {
+    display: none;
+}
+
+.popup:has(.bbcm-manager) .popup-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
     overflow: hidden;
 }
 
@@ -285,9 +297,17 @@
 .bbcm-manager-content {
     flex: 1 1 auto;
     min-height: 0;
+    min-width: 0;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+    touch-action: pan-y;
+    scrollbar-gutter: stable;
     padding: 2px 4px 8px 2px;
+}
+
+.bbcm-manager .bbcm-tab-panel {
+    min-height: 0;
 }
 
 .bbcm-tab-panel[hidden] {
@@ -409,6 +429,7 @@
 }
 
 .bbcm-manager-footer {
+    min-height: 0;
     flex: 0 0 auto;
     padding-top: 11px;
     border-top: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.14));
@@ -438,13 +459,53 @@
 
 @media (max-width: 760px) {
     .bbcm-manager {
-        height: calc(100dvh - 150px);
+        height: 100%;
+        max-height: 100%;
         min-height: 0;
         gap: 9px;
     }
 
+    .bbcm-mobile-overview {
+        flex: 0 0 auto;
+        min-height: 0;
+    }
+
+    .bbcm-mobile-overview-summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 34px;
+        padding: 2px 4px;
+        cursor: pointer;
+        list-style: none;
+    }
+
+    .bbcm-mobile-overview-summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .bbcm-mobile-overview-chevron {
+        transition: transform 0.15s ease;
+    }
+
+    .bbcm-mobile-overview:not([open]) .bbcm-mobile-overview-chevron {
+        transform: rotate(-90deg);
+    }
+
+    .bbcm-mobile-overview:not([open]) .bbcm-manager-header,
+    .bbcm-mobile-overview:not([open]) .bbcm-manager-stats,
+    .bbcm-mobile-overview:not([open]) .bbcm-status {
+        display: none;
+    }
+
+    .bbcm-mobile-overview[open] {
+        padding-bottom: 2px;
+        border-bottom: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.12));
+    }
+
     .bbcm-manager-header {
         align-items: stretch;
+        gap: 7px;
     }
 
     .bbcm-manager-header > div {
@@ -454,14 +515,73 @@
     .bbcm-manager-header .menu_button {
         width: 100%;
         justify-content: center;
+        min-height: 36px;
+        padding: 5px 8px;
+    }
+
+    .bbcm-manager-header h3 {
+        font-size: 1rem;
+    }
+
+    .bbcm-manager-header p {
+        display: none;
+    }
+
+    .bbcm-manager-stats {
+        gap: 6px;
+    }
+
+    .bbcm-manager-stats > div {
+        min-height: 38px;
+        padding: 5px 8px;
+        gap: 7px;
+    }
+
+    .bbcm-manager-stats > div > i {
+        font-size: 1rem;
+    }
+
+    .bbcm-manager-stats strong {
+        font-size: 1rem;
+    }
+
+    .bbcm-manager .bbcm-status {
+        padding: 6px 8px;
+        font-size: 0.82rem;
+    }
+
+    .bbcm-manager .bbcm-hint {
+        margin: 0 0 6px;
+        font-size: 0.78rem;
+        line-height: 1.3;
     }
 
     .bbcm-manager-toolbar {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 6px;
     }
 
     .bbcm-search-field {
+        grid-column: auto;
+    }
+
+    .bbcm-manager-toolbar select {
         grid-column: 1 / -1;
+        min-height: 36px;
+    }
+
+    .bbcm-select-visible-label {
+        min-height: 36px;
+        font-size: 0.82rem;
+    }
+
+    .bbcm-visible-count {
+        font-size: 0.82rem;
+    }
+
+    .bbcm-manager-content {
+        flex: 1 1 0;
+        padding: 0 2px 12px;
     }
 
     .bbcm-select-visible-label {
@@ -477,11 +597,54 @@
     }
 
     .bbcm-result-card {
-        min-height: 148px;
+        min-height: 0;
+        padding: 8px;
+    }
+
+    .bbcm-card-list {
+        gap: 6px;
+    }
+
+    .bbcm-card-topline {
+        gap: 6px;
+        margin-bottom: 6px;
+    }
+
+    .bbcm-card-topline .bbcm-icon-button {
+        width: 36px;
+        min-width: 36px;
+        min-height: 36px;
+    }
+
+    .bbcm-card-owner {
+        margin-bottom: 2px;
+        font-size: 0.95rem;
+    }
+
+    .bbcm-card-title,
+    .bbcm-card-meta,
+    .bbcm-card-reason {
+        font-size: 0.8rem;
+    }
+
+    .bbcm-card-title {
+        margin-bottom: 6px;
+    }
+
+    .bbcm-card-meta {
+        gap: 4px 8px;
+    }
+
+    .bbcm-card-reason {
+        margin-top: 6px;
+        padding-top: 6px;
     }
 
     .bbcm-manager-footer {
         align-items: stretch;
+        gap: 6px;
+        padding-top: 7px;
+        padding-bottom: env(safe-area-inset-bottom);
     }
 
     .bbcm-manager-footer > strong,
@@ -499,6 +662,9 @@
         width: 100%;
         margin: 0;
         justify-content: center;
+        min-height: 36px;
+        padding: 5px 8px;
+        font-size: 0.86rem;
     }
 }
 
